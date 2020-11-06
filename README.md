@@ -1,5 +1,7 @@
 # Time Series Review
-Lee's time series review, live at https://episphere.github.io/radar_review. This repository will include relevant notes, experimental code, and (eventually) the final write-up. 
+Lee's time series review, live at https://episphere.github.io/radar_review. This repository will include relevant notes, experimental code, and (eventually) the final write-up.
+
+Link to Google Document with additional notes: [Google Doc](https://docs.google.com/document/d/1xC8_YXEDKNnUYbQmc1_Jzwv3T64F8UhAQg-G9Bg5Y98/edit?usp=sharing)
 
 The exact content of the review is still in development, but it should aim to include the following topics:
 
