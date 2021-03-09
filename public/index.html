@@ -3,10 +3,69 @@
 <head>
     <meta charset="utf-8">
     <script src="https://distill.pub/template.v2.js"></script>
+    <script src="js/lib/d3/d3.min.js"></script>
+    <script src="js/dataset.js"></script>
+    <script src="js/setUp.js"></script>
+    <script src="js/timeSeries.js"></script>
+    <script src="js/scatterPlot.js"></script>
+
     <style>
         .rem {
             color: red;
             text-decoration: line-through;
+        }
+        .controls {
+            /*display: inline-block;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-column-gap: 15px;*/
+            font-size: 11pt;
+            margin-left: 10px;
+            margin-bottom: 10px;
+            display: grid;
+            grid-template-areas: 
+                'axis1 blank'
+                'axis2 style-div';
+        }
+
+        .select {
+            margin-left: auto; 
+            margin-right: 20px; 
+            display: inline-block;
+        }
+
+        .axis-select-1 {
+            grid-area: axis1; 
+        }
+        .axis-select-2 {
+            grid-area: axis2; 
+        }
+        .style-div {
+            grid-area: style-div;
+            margin-left: auto;
+        }
+
+        .slider {
+            display: inline-block;
+            margin-left: 10px;
+            margin-bottom: 10px;
+        }
+
+        .check {
+            display: inline-block
+        }
+
+        label {
+            margin-right: 5px;
+            font-size: 11pt;
+        }
+
+        .slider-label {
+            font-size: 9pt;
+            vertical-align: top
+        }
+
+        input[type="range" i] {
+            vertical-align: middle;
         }
     </style>
 
@@ -71,14 +130,15 @@
    
     <p>In integration, an axis is used to explicitly represent the passage of time. The most common example of integration is the time-series plot, a staple of all analytic fields (including epidemiology). Integration is a very intuitive way to represent time-dependent data but can be a poor choice when the data is multivariate. <a href="#fig_timeseries">Figure 1</a> shows two of the main issues: visual clutter and problems representing data from different scales.</p>
 
-    <a id="fig_timeseries">
+    <!--<a id="fig_timeseries">-->
     <figure>
     <d-figure>
-        <img src="images/ph_line.png" />
+        <div id="fig1_controls" class="controls"></div>
+        <div id="fig1_time_series"></div>
     </d-figure>
     <figcaption><b>Figure 1:</b> Time-series plot of COVID-19 incidence in US states over time. Hover over a line to focus on it. Click on one or more lines to keep them in focus. To reset focus, click on an empty region of the plot. You can select more variables to include in the diagram by selecting enabling their checkbox. Notice how difficult it is to track multivariate relationships of multiple states. </figcaption>
     </figure>
-    </a>
+    <!-- </a> -->
     
     
     <p>In superimposition, visualizations of the data at different time points are superimposed on top of each other. This removes the need for a time-axis, freeing up a positional axis to represent something else. Time can be conveyed through other visual elements (e.g. color), as is the case for trace plots (enable 'traces' in <a href="#fig_bubble">Figure 2</a> or <a href="#fig_dr">Figure 3</a> for an example). </p>
@@ -95,14 +155,14 @@
 
     <p>Often, the traditional visualization methods used by epidemiologists are unsuitable for complex, multivariate data <d-cite key="ola2016beyond"></d-cite>. A key problem is the limited number of visual elements which are available to represent the variables. Position is generally considered to be the most interpretable visual element (at least for quantitative variables), but diagrams are limited to two or three positional axes <d-cite key="kelleher2011ten"></d-cite>. More variables can be represented using secondary (or optical) visual elements such as color and shape.</p>
 
-    <a id="fig_bubble">
     <figure>
     <d-figure>
-        <img src="images/ph_bubble.png" />
+        <div id="fig2_controls" class="controls"></div>
+        <div id="fig2_scatter"></div>
+        <div id="fig2_slider_control" class="slider_control"></div>
     </d-figure>
     <figcaption><b><a href="#fig_bubble">Figure 2</a>:</b> Bubble chart of weekly COVID-19 incidence vs. heart disease mortality in US states. The size of each bubble is proportional to the population if its respective state. The color of each bubble is determined by the selected variable in the 'color' dropdown menu. You can add traces to the diagram by enabling the 'traces' checkbox. You can choose the point in time using the scrubber. </figcaption>
     </figure>
-    </a>
     
     <p>In <a href="#fig_bubble">Figure 2</a>, three variables are plotted. The x and y axes represent COVID-19 incidence and heart disease mortality respectively; a point represents a US state with its size proportional to the population of the state and its color represents the variable selected in the drop-down menu. This is an example of a ‘bubble chart’, popular in public health and a good example of how more than two variables can be plotted on a two-dimensional diagram <d-cite key="zhang2020visualization"></d-cite><d-cite key="lewis2017effect"></d-cite><d-cite key="rosling2011health"></d-cite>. However, issues begin to arise when the number of variables is greater than three or four, or when visual elements are reserved to represent time or space. Space in particular is a problem due to its common presence in epidemiological data <d-cite key="kirby2017advances"></d-cite>.</p>
 
@@ -116,14 +176,14 @@
 
     <p>A key concern of dimensionality reduction for visualization is the interpretability of the encoding; the resulting visualization should convey relevant information to the user <d-cite key="nguyen2019ten"></d-cite>. Take PCA for example, each dimension has a simple interpretation as a linear combination of the original features. If a user knows the make-up of the dimensions, they can get a feel for the high dimensional quantity of a point from its projected 2-dimensional position alone (see <a href="#fig_dr">Figure 3</a> with 'PCA' selected). This is generally not possible with a more complex, non-linear method such as an autoencoder <d-cite key="gisbrecht2015data"></d-cite>. However, an understanding of individual points may not be necessary; the user may only wish to get a feel for how the different points relate to each other (e.g. by analyzing nearby points and identifying clusters) <d-cite key="nguyen2019ten"></d-cite>. It is here where non-linear methods may be of most use, but one be cognizant of a chosen method’s strengths and weaknesses to avoid being misled <d-cite key="sacha2014knowledge"></d-cite>. This problem is especially prevalent in parametric methods wherein a poor choice for the parameter value(s) may reveal false structures <d-cite key="wattenberg2016use"></d-cite>. </p>
 
-    <a id="fig_dr">
     <figure>
     <d-figure>
-        <img src="images/ph_dr.png" />
+        <div id="fig3_controls" class="controls"></div>
+        <div id="fig3_scatter"></div>
+        <div id="fig3_slider_control" class="slider_control"></div>
     </d-figure>
     <figcaption><b><a href="#fig_dr">Figure 3</a>:</b> Dimensionality reduced scatter plot of US states with multiple variables: COVID-19 incidence, heart disease mortality, population, average age, ... . You can select the dimensionality reduction method applied using the 'method' drop-down. The auto-encoder is ... . In 'none', you can select variables to compare and no reduction is applied. </figcaption>
     </figure>
-    </a>
 
     <p>Dimensionality reduction for real-time data comes with several difficulties. For one, many popular dimensionality reduction methods are computationally intensive (e.g. PCA, t-SNE), and can therefore struggle to keep up with a lot of data coming in <d-cite key="fujiwara2019incremental"></d-cite>. Furthermore, a lot of methods are very sensitive to small changes in the data, which makes it difficult for a user to preserve their mental map of the visualization <d-cite key="fujiwara2019incremental"></d-cite>. Several ‘incremental’ dimensionality reduction methods have been proposed to address these issues, including incremental versions of PCA <d-cite key="artac2002incremental"></d-cite>, graph layout <d-cite key="zhao2006incremental"></d-cite>, and local linear embedding <d-cite key="kouropteva2005incremental"></d-cite>. This is an emerging field, the success of which is crucial to the feasibility of dimensionality reduction in real-time visualization <d-cite key="fujiwara2019incremental"></d-cite>.</p>
 
@@ -152,6 +212,8 @@
     <p>In summary, in epidemiology there is an unmet need for software which can effectively visualize multivariate, real-time data. Any software hoping to meet this need will have to consider how to work with disparate sources of data, how to convey temporal relationships, how to represent complex data with a limited set of visual elements, and more. Ideas from visual analytics and iterative dimensionality reduction are likely to be informative. Several software proposals indicate an interest in these ideas, but none of the proposals have seen widespread adoption in epidemiological practice thus far. A more focused effort should be taken to ensure novel software meets the actual needs of the user, and is easy to install, integrate, and use. If achieved, we predict that such a software could be revolutionary for epidemiology, allowing the field to take greater advantage of the developing data landscape. </p>
 
 </d-article>
+
+<script src="js/main.js"></script>
 
 <d-appendix>
 

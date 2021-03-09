@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://distill.pub/template.v2.js"></script>
+  <script src="js/lib/d3/d3.min.js"></script>
+  <script src="js/dataset.js"></script>
+  <script src="js/setUp.js"></script>
+  <script src="js/timeSeries.js"></script>
+  <script src="js/scatterPlot.js"></script>
+  <script>
+    const dataPromise = d3.json("data.json")
+  </script>
+  <style>
+    .controls {
+      display: inline-grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-column-gap: 15px;
+      font-size: 11pt;
+      margin-left: 30px;
+    }
+
+    label {
+      margin-right: 5px;
+    }
+
+    option {
+      font-size: 5pt;
+    }
+  </style>
+</head>
+
+<d-article>
+  <h1>Testing Figures</h1>
+  <div id="fig1">
+    <div id="fig1_time_series"></div>
+    <div id="fig1_controls" class="controls"></div> <!--style="display: inline-grid; grid-column-gap: 25px; grid-template-columns: 1fr 1fr 1fr;"></div>-->
+  </div>
+
+  <div id="fig2">
+    <div id="fig2_scatter"></div>
+    <div id="fig2_controls" style="display: inline-grid; grid-column-gap: 25px; grid-template-columns: 1fr 1fr 1fr;"></div>
+  </div>
+
+  <div id="fig3">
+    <div id="fig3_scatter"></div>
+    <div id="fig3_controls" style="display: inline-grid; grid-column-gap: 25px; grid-template-columns: 1fr 1fr 1fr;"></div>
+  </div>
+</d-article>
+    
