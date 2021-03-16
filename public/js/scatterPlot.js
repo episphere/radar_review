@@ -45,7 +45,7 @@ async function createSimpleScatter(dataset, id, aAxisFieldMap, includePCP=false,
   }
 
   updateScatter(plot)
-  createScatterControls(plot, id)
+  createControls(plot, id)
 }
 
 function updateScatter(plot) {
@@ -300,8 +300,6 @@ function blankClick(e, d, plot) {
 
   updateTraces(plot)
   updateScatterLabels(plot)
-
-  console.log("Blank Click")
 }
 
 function pointMouseOver(e, d, plot) {
@@ -371,7 +369,7 @@ function sort(a, b, plot)  {
   }
 }
 
-function createScatterControls(plot, id) {
+function createControls(plot, id) {
   const div = document.getElementById(`${id}_controls`)
 
   const ySelect = createSelect("Y Axis", [...axisFieldMap.entries()], plot.yField, function() {
@@ -518,8 +516,6 @@ function updateTimePCP(plot) {
     key => [key, d3.scaleLinear(d3.extent(data, d => d[key]), [pMargin.left, plot.pcp.size[0] - pMargin.right])]))
 
   plot.pcp.xScales = xScales
-
-
 
   const axes = plot.pcp.svg.select(`#${plot.id}-pcp-axes`)
   axes.selectAll(".pcp-axis").remove()

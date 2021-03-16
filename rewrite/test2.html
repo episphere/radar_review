@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="https://distill.pub/template.v2.js"></script>
+    <script src="js/lib/d3/d3.min.js"></script>
+    <script src="js/lib/taffydb/taffy.js"></script>
+    <script type="module", src="js/helper.js"></script>
+    <script src="js/setup.js"></script>
+    <script type="module", src="js/main.js"></script>
+
+    <style>
+      .rem {
+          color: red;
+          text-decoration: line-through;
+      }
+      .controls {
+          font-size: 11pt;
+          margin-left: 10px;
+          margin-bottom: 5px;
+          display: grid;
+          grid-template-areas: 
+              'axis1 blank'
+              'axis2 style-div';
+      }
+
+      .select {
+          margin-left: auto; 
+          margin-right: 20px; 
+          display: inline-block;
+      }
+
+      .axis-select-1 {
+          grid-area: axis1; 
+      }
+      .axis-select-2 {
+          grid-area: axis2; 
+      }
+      .style-div {
+        grid-area: style-div;
+        margin-left: auto;
+        column-gap: 10px;
+        justify-content: space-between;
+        display: flex;
+      }
+
+      .slider {
+          display: inline-block;
+          margin-left: 10px;
+          margin-bottom: 10px;
+      }
+
+      .check {
+          display: inline-block
+      }
+
+      label {
+          margin-right: 5px;
+          font-size: 11pt;
+      }
+
+      .slider-label {
+          font-size: 9pt;
+          vertical-align: top
+      }
+
+      input[type="range" i] {
+          vertical-align: middle;
+      }
+
+      .info-bar {
+        line-height: 1em;
+        display: flex;
+        margin-right: 20px;
+      }
+
+      .color-key {
+        margin-left: auto;
+        display: inline-block;
+        font-family: sans-serif;
+        font-size: 10px;
+      }
+  </style>
+</head>
+
+<body>
+  
+<!-- TODO: Write Description-->
+<d-front-matter>
+<script type="text/json">{
+  "title": "Research Debt",
+  "description": "...",
+  "authors": [
+      {
+      "author":"Lee Mason",
+      "authorURL":"https://github.com/LKMason",
+      "affiliation": "National Cancer Institute, Queen's University, Belfast"
+      },
+      {
+      "author":"Jonas de Almeida",
+      "authorURL":"https://github.com/jonasalmeida",
+      "affiliation":"National Cancer Institute"
+      },
+      {
+      "author":"Blánaid Hicks",
+      "authorURL":"https://www.researchgate.net/profile/Blanaid_Hicks",
+      "affiliation":"Queen's University, Belfast"
+      }
+  ]
+}</script>
+</d-front-matter>
+
+<d-title>
+  <h1>Near Real-Time Visualization of Multivariate Data for Epidemiology</h1>
+  <p>Exploring the potential of visualizing complex, multivariate epidemiogical data in real-time.</p>
+</d-title>
+
+<d-article>
+  <figure>
+  <d-figure id="fig1">
+    <!--<div id="fig1-controls" class="controls"></div>-->
+    <div id="fig1-ts"></div>
+  </d-figure>
+  <figcaption><b>Figure 1:</b> Interactive time-series plot of data stratified by US state. You 
+    can select the y-axis variable using the dropdown box. You can focus on a line by hovering over
+    it. If you click while focussed on a line then that line will be selected, and will 
+    thus remain in focus. You can select multiple lines. If you click while not focussed on any line,
+    then all lines will be deselected. You can choose a coloring scheme for the lines using the 
+    dropdown box. Notice how basic interactivity improves the explorative power of the plot. 
+ </figcaption>
+  </figure>
+  
+  
+  <figure>
+  <d-figure id="fig2">
+    <div id="fig2-scatter"></div>
+  </d-figure>
+  <figcaption><b><a href="#fig_bubble">Figure 2</a>:</b> Bubble chart of weekly COVID-19 incidence vs. heart disease mortality in US states. The size of each bubble is proportional to the population if its respective state. The color of each bubble is determined by the selected variable in the 'color' dropdown menu. You can add traces to the diagram by enabling the 'traces' checkbox. You can choose the point in time using the scrubber. </figcaption>
+  </figure>
+
+  <figure>
+  <d-figure id="fig3">
+    <div id="fig3-figs">
+      <div id="fig3-scatter" style="float: left;"></div>
+      <div id="fig3-pcp"></div>
+    </div>
+  </d-figure>
+  <figcaption><b><a href="#fig_dr">Figure 3</a>:</b> Dimensionality reduced scatter plot of US states with multiple variables: COVID-19 incidence, heart disease mortality, population, average age, ... . You can select the dimensionality reduction method applied using the 'method' drop-down. The auto-encoder is ... . In 'none', you can select variables to compare and no reduction is applied. </figcaption>
+  </figure>
+</d-article>
+</body>
+</html>
