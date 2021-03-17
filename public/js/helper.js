@@ -1,4 +1,8 @@
 export function filterOutliers(values, nStd = 2) {
+  if (nStd < 0) {
+    return values
+  }
+
   const std = d3.deviation(values)
   const mean = d3.mean(values)
   return  values.filter(d => d > mean - std*nStd && d < mean + std*nStd)

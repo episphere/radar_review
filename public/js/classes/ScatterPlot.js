@@ -1,5 +1,5 @@
 import { DynamicState } from "./DynamicState.js"
-import { filterOutliers, clamp, lightenRGB, getAngle } from "./helper.js"
+import { filterOutliers, clamp, lightenRGB, getAngle } from "../helper.js"
 
 // TODO: Remove hard coded constants
 export class ScatterPlot {
@@ -7,6 +7,8 @@ export class ScatterPlot {
       bubbleField = null,
       viewTraces = false,
       interactiveColor,
+      trimStd = -1,
+      proportionalResize = false,
       size = [480, 480],
       margin = {top: 20, right: 20, bottom: 20, left: 30}
     } = {}) {
@@ -23,8 +25,11 @@ export class ScatterPlot {
     this.bubbleField = bubbleField
     this.viewTraces = viewTraces
     this.size = size
+    this.targetSize = size.map(d => d)
     this.margin = margin
     this.interactiveColor = interactiveColor
+    this.trimStd = trimStd
+    this.proportionalResize = proportionalResize
     this.nodes = {}
     this.tValues = state.dataset().distinct(this.tField)
 
@@ -231,11 +236,34 @@ export class ScatterPlot {
   updateAll() {
     const state = this.state
 
+    const xValues = filterOutliers(state.dataset().distinct(this.xField), this.trimStd)
+    const yValues = filterOutliers(state.dataset().distinct(this.yField), this.trimStd)
+
+    if (this.proportionalResize) {
+      const xRange = d3.extent(xValues)
+      const yRange = d3.extent(yValues)
+      const xLength = xRange[1] - xRange[0]
+      const yLength = yRange[1] - yRange[0]
+      const proportion = yLength / xLength
+      console.log(proportion, this.targetSize)
+      if (proportion <= 1) {
+        this.size[1] = this.targetSize[0] * proportion
+        this.nodes.svg.attr("height", this.size[1])
+        this.nodes.xAxis.attr("transform", `translate(0,${this.size[1] - this.margin.bottom})`)
+      } 
+      if (proportion >= 1) {
+        this.size[0] = this.targetSize[1] / proportion
+        this.nodes.svg.attr("width", this.size[0])
+        this.nodes.yAxis.attr("transform", `translate(${this.margin.left}, 0)`)
+      }
+    }
+    
+
     this.scaleX = d3.scaleLinear()
-      .domain(d3.extent(filterOutliers(state.dataset().distinct(this.xField)))) 
+      .domain(d3.extent(xValues)) 
       .range([this.margin.left, this.size[0] - this.margin.right])
     this.scaleY =  d3.scaleLinear()
-      .domain(d3.extent(filterOutliers(state.dataset().distinct(this.yField)))) 
+      .domain(d3.extent(yValues)) 
       .range([this.size[1] - this.margin.bottom, this.margin.top])
 
     this.nodes.xAxis.call(d3.axisBottom(this.scaleX)
@@ -259,30 +287,31 @@ export class ScatterPlot {
       .attr("width", this.size[0])
       .attr("height", this.size[1])
       .on("click", (_, d) => this.blankClick(_, d))
+    this.nodes.svg = svg
 
     this.nodes.xAxis = svg.append("g")
-      .attr("id", `${state.id}-xAxis`)
+      .attr("id", `${this.id}-xAxis`)
       .attr("transform", `translate(0,${this.size[1] - this.margin.bottom})`)
 
     this.nodes.yAxis= svg.append("g")
-      .attr("id", `${state.id}-yAxis`)
+      .attr("id", `${this.id}-yAxis`)
       .attr("transform", `translate(${this.margin.left},0)`)
 
     this.nodes.points = svg.append("g")
-      .attr("id", `${state.id}-points`)
+      .attr("id", `${this.id}-points`)
 
     this.nodes.inPoints = this.nodes.points.append("g")
-      .attr("id", `${state.id}-points-in`)
+      .attr("id", `${this.id}-points-in`)
 
     this.nodes.outPoints = this.nodes.points.append("g")
-      .attr("id", `${state.id}-points-out`)
+      .attr("id", `${this.id}-points-out`)
       .attr("pointer-events", "none")
 
     this.nodes.traces = svg.append("g")
-      .attr("id", `${state.id}-traces`)
+      .attr("id", `${this.id}-traces`)
 
     this.nodes.labels = svg.append("g")
-      .attr("id", `${state.id}-labels`)
+      .attr("id", `${this.id}-labels`)
       .attr("font-family", "monospace")
       .attr("font-size", 10)
       .attr("text-anchor", "left")
@@ -336,7 +365,7 @@ export class ScatterPlot {
     if (property == "focus") {
       this.nodes.points.select(`#${this.id}-point-${value}`).raise()
       this.updateInteraction()
-    } else if (property == "selected") {
+    } else if (property == "selected" || property == "coloring") {
       this.updateInteraction()
       this.updateTraces()
     } else if (property == "tValue") {
