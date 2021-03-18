@@ -151,12 +151,12 @@ export class ParallelPlot {
   }
 
   stateChange(property, value) {
-    if (property == "focus") {
+    if (property == "focus" || property == "coloring") {
       this.updateInteraction()
     } else if (property == "tValue") {
       this.updateAll()
     } else if (property == "selected") {
       this.updateLabels()
-    }
+    } 
   }
 }

@@ -3,7 +3,8 @@ import { DynamicState } from "./classes/DynamicState.js";
 import { ParallelPlot } from "./classes/ParallelPlot.js";
 import { ScatterPlot } from "./classes/ScatterPlot.js";
 
-// TODO: Should the diagrams' state be linked? If so, fix sync issue with UI components and coloring
+// TODO: Update data
+// TODO: Rename political fields
 d3.json("data/data.json").then(data => {
   const dataset = TAFFY(data)
   setUp(dataset)
@@ -101,14 +102,13 @@ d3.json("data/data.json").then(data => {
     "fig3-pcp", defaults.S_FIELD, defaults.T_FIELD, [...defaults.Y_FIELD_MAP.values()], stateFig3,
     {interactiveColor: defaults.INTERACTIVE_COLOR, size: [350, 350]})
   
-  createScatterControls("fig3", scatterFig3, [...defaults.PCA_FIELD_MAP], "pc1", "pc2")
-
   const barFig3 = createBar("fig3")
 
   stateFig3.addListener((p, v) => scatterFig3.stateChange(p, v))
   stateFig3.addListener((p, v) => parallel.stateChange(p, v))
   stateFig3.addListener((p, v) => updateBar(barFig3, p, v))
 
+  createScatterControls("fig3", scatterFig3, [...defaults.PCA_FIELD_MAP], "pc1", "pc2")
 
   //createControls("fig2-control", scatter, parallel, state)
 })
