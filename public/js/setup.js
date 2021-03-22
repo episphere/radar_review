@@ -9,8 +9,8 @@ async function setUp(dataset) {
   window.defaults.COLORING_MAP = createColorings(dataset)
   window.defaults.COLORING = "Unique"
   window.defaults.Y_FIELD_MAP = createYFieldMap()
-  window.defaults.X_FIELD = "covid_deaths"
-  window.defaults.Y_FIELD = "covid_cases"
+  window.defaults.X_FIELD = "covid_new_death_mean_p"
+  window.defaults.Y_FIELD = "covid_new_case_mean_p"
   window.defaults.TRACES_ENABLED = true
   window.defaults.BUBBLE_FIELD = "population"
   window.defaults.INTERACTIVE_COLOR = interactiveColor
@@ -20,10 +20,10 @@ async function setUp(dataset) {
 
 function createYFieldMap() {
   return new Map([
-    ["Covid Cases", "covid_cases"],
-    ["Covid Mortality", "covid_deaths"],
-    ["Heart Disease Mortality", "heart_disease_mortality"],
-    ["Unemployment", "unemployment"],
+    ["Covid Cases", "covid_new_death_mean_p"],
+    ["Covid Mortality", "covid_new_case_mean_p"],
+    ["Heart Disease Mortality", "diseases_of_heart_i00_i09_p"],
+    ["Unemployment", "unemployment_p"],
   ])
 }
 
@@ -75,17 +75,17 @@ function createColorings(dataset) {
 
 
   // -- Political --
-  const coloringPolitical = function(d) {
-    return d.government == "Rep" ? "rgb(245, 87, 66)" : "rgb(66, 102, 245)"  
-  }
-  coloringMap.set("Political", 
-    {
-      f: coloringPolitical, 
-      id: "political",
-      continuous: false,
-      values: [["Republican", "rgb(245, 87, 66)"], ["Democrat", "rgb(66, 102, 245)"]]
-    }
-  )
+  // const coloringPolitical = function(d) {
+  //   return d.government == "Rep" ? "rgb(245, 87, 66)" : "rgb(66, 102, 245)"  
+  // }
+  // coloringMap.set("Political", 
+  //   {
+  //     f: coloringPolitical, 
+  //     id: "political",
+  //     continuous: false,
+  //     values: [["Republican", "rgb(245, 87, 66)"], ["Democrat", "rgb(66, 102, 245)"]]
+  //   }
+  // )
 
 
   // -- Mask Mandates --
@@ -96,7 +96,7 @@ function createColorings(dataset) {
   ])
 
   const coloringMask = function(d) {
-    return maskColorMap.has(d.mask_mandate) ? maskColorMap.get(d.mask_mandate) : "rgb(145, 145, 145)"
+    return maskColorMap.has(d.current_order_status) ? maskColorMap.get(d.current_order_status) : "rgb(145, 145, 145)"
   }
   coloringMap.set("Mask Mandate", {
     f: coloringMask, 
@@ -155,18 +155,31 @@ function createTimeSeriesControls(id, timeSeries) {
 }
 
 function createScatterControls(id, scatter, fields, xDefault, yDefault) {
-  const xSelect = createSelect("X Axis", fields, xDefault,
-    function() {
-      scatter.setXField(this.value)
-    }
-  )
-  const ySelect = createSelect("Y Axis", fields, yDefault,
-    function() {
-      scatter.setYField(this.value)
-    }
-  )
-  xSelect.className = "axis-select-1"
-  ySelect.className = "axis-select-2"
+  const div = document.getElementById(id)
+
+  const controlDiv = document.createElement("div")
+  controlDiv.className = "controls"
+
+  if (fields) {
+    const xSelect = createSelect("X Axis", fields, xDefault,
+      function() {
+        scatter.setXField(this.value)
+      }
+    )
+    const ySelect = createSelect("Y Axis", fields, yDefault,
+      function() {
+        scatter.setYField(this.value)
+      }
+    )
+    xSelect.className = "axis-select-1"
+    ySelect.className = "axis-select-2"
+
+    div.appendChild(xSelect)
+    div.appendChild(ySelect)
+
+    controlDiv.appendChild(xSelect)
+    controlDiv.appendChild(ySelect)
+  }
   // axesDiv.appendChild(xSelect)
   // axesDiv.appendChild(ySelect)
 
@@ -197,12 +210,8 @@ function createScatterControls(id, scatter, fields, xDefault, yDefault) {
   styleDiv.appendChild(coloringSelect)
   styleDiv.className = "style-div"
 
-  const div = document.getElementById(id)
 
-  const controlDiv = document.createElement("div")
-  controlDiv.className = "controls"
-  controlDiv.appendChild(xSelect)
-  controlDiv.appendChild(ySelect)
+ 
   controlDiv.appendChild(styleDiv)
 
   div.prepend(controlDiv)
@@ -228,9 +237,7 @@ function createControls(id, scatter, parallel, state) {
     }
   )
 
-  const div = document.getElementById(id)
-  div.appendChild(xSelect)
-  div.appendChild(ySelect)
+
   div.appendChild(tSlider)
 }
 

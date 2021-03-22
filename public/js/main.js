@@ -5,7 +5,7 @@ import { ScatterPlot } from "./classes/ScatterPlot.js";
 
 // TODO: Update data
 // TODO: Rename political fields
-d3.json("data/data.json").then(data => {
+d3.json("data/data_v2.json").then(data => {
   const dataset = TAFFY(data)
   setUp(dataset)
 
@@ -108,7 +108,7 @@ d3.json("data/data.json").then(data => {
   stateFig3.addListener((p, v) => parallel.stateChange(p, v))
   stateFig3.addListener((p, v) => updateBar(barFig3, p, v))
 
-  createScatterControls("fig3", scatterFig3, [...defaults.PCA_FIELD_MAP], "pc1", "pc2")
+  createScatterControls("fig3", scatterFig3)
 
   //createControls("fig2-control", scatter, parallel, state)
 })
