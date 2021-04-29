@@ -20,8 +20,8 @@ async function setUp(dataset) {
 
 function createYFieldMap() {
   return new Map([
-    ["Covid Cases", "covid_new_death_mean_p"],
-    ["Covid Mortality", "covid_new_case_mean_p"],
+    ["Covid Cases", "covid_new_case_mean_p"],
+    ["Covid Mortality", "covid_new_death_mean_p"],
     ["Heart Disease Mortality", "diseases_of_heart_i00_i09_p"],
     ["Unemployment", "unemployment_p"],
   ])
