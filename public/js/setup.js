@@ -315,6 +315,7 @@ function createSlider(id, title, values, defaultValue, oninput, labelFormat = d 
   const titleLabel = document.createElement("label")
   titleLabel.setAttribute("for", id)
   titleLabel.innerHTML = title
+  titleLabel.className = "slider-label"
   
   div.className = "slider"
   div.appendChild(titleLabel)
