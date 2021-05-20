@@ -2,9 +2,6 @@ import { DynamicState } from "./DynamicState.js"
 import { filterOutliers, clamp, lightenRGB, getAngle } from "../helper.js"
 
 
-// TODO: Seems to be a bug with axis corresponding to wrong variable values ... or maybe it's just 
-// with COVID cases???
-// TODO: Remove hard coded constants
 export class ScatterPlot {
   constructor(id, xField, yField, sField, tField, state, {
       bubbleField = null,
@@ -18,7 +15,6 @@ export class ScatterPlot {
       margin = {top: 20, right: 20, bottom: 20, left: 30}
     } = {}) {
 
-    // TODO: Unhardcode stuff
 
     this.id = id
     this.state = state

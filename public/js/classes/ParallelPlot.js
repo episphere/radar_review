@@ -1,5 +1,3 @@
-// TODO: Focused and selected labels
-// TODO: Self interactivity
 export class ParallelPlot {
   constructor(id, sField, tField, fields, state, {
     interactiveColor = (d, i) => state.coloring(d, i),

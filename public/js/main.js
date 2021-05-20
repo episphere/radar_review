@@ -3,9 +3,7 @@ import { DynamicState } from "./classes/DynamicState.js";
 import { ParallelPlot } from "./classes/ParallelPlot.js";
 import { ScatterPlot } from "./classes/ScatterPlot.js";
 
-// TODO: Update data
-// TODO: Rename political fields
-d3.json("data/data_v2.json").then(data => {
+d3.json("data/data.json").then(data => {
   for (const row of data) {
     for (const field of Object.keys(row)) {
       if (field.endsWith("_p")) {
