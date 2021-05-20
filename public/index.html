@@ -134,8 +134,6 @@
 
   <p>Visualization is a valuable tool in near real-time epidemiological analysis because it provides a quick overview of data, especially important when time is limited or when the data is large and complex. There are several issues which arise when visualizing near real-time, multivariate data. This report will review these issues and suggest ways in which they can be mitigated. Interactive diagrams will be used to help illustrate key concepts. Note that the the diagrams themselves are not hooked to near real-time APIs, and are instead using pre-loaded data. </p>
 
-  <!-- TODO: Mention link to real, running dashboard -->
-
   <!------------------------>
 
 
@@ -191,7 +189,8 @@
     the size of each point will be set proportional to the population of its respective state 
     (in 2019) within a limited range. If you select the "Traces" checkbox, traces will be drawn on selected points. You 
     can choose a coloring scheme using the dropdown box. You can select the date visualized using
-    the date slider.
+    the date slider. The plot is restricted to showing five standard deviations from the mean (across all time points), 
+    values outside of the plot are represented by triangles pointing in the direction of the point. 
    </figcaption>
    <!-- TODO: Mention the STD cut-off, if present -->
   </figure>
@@ -220,7 +219,9 @@
   <figcaption><b><a href="#fig_dr">Figure 3</a>:</b> Scatter plot of data stratified by US state,
   with dimensionality reduction applied. Principal component analysis (PCA) was applied to the data 
   at each point in time. The variables included were COVID-19 cases, COVID-19 deaths, heart disease
-  deaths, and unemployment. The parallel coordinates plot on the right shows the non-reduced values. </figcaption>
+  deaths, and unemployment. The parallel coordinates plot on the right shows the non-reduced values.
+  The plot is restricted to showing two standard deviations from the mean (across all time points), 
+  values outside of the plot are represented by triangles pointing in the direction of the point.  </figcaption>
   </figure>
 
   <p>Dimensionality reduction for real-time data comes with several difficulties. For one, many popular dimensionality reduction methods are computationally intensive (e.g. PCA, t-SNE), and can therefore struggle to keep up with a lot of data coming in <d-cite key="fujiwara2019incremental"></d-cite>. Furthermore, a lot of methods are very sensitive to small changes in the data, which makes it difficult for a user to preserve their mental map of the visualization <d-cite key="fujiwara2019incremental"></d-cite>. Several ‘incremental’ dimensionality reduction methods have been proposed to address these issues, including incremental versions of PCA <d-cite key="artac2002incremental"></d-cite>, graph layout <d-cite key="zhao2006incremental"></d-cite>, and local linear embedding <d-cite key="kouropteva2005incremental"></d-cite>. This is an emerging field, the success of which is crucial to the feasibility of dimensionality reduction in real-time visualization <d-cite key="fujiwara2019incremental"></d-cite>.</p>

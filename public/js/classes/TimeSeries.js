@@ -12,6 +12,7 @@ export class TimeSeries {
     drawNowLine = false,
     xTickFormat = v => v,
     yTickFormat = v => v,
+    yTooltipFormat= v => v,
     size = [480, 480],
     margin = {top: 20, right: 20, bottom: 20, left: 30},
   } = {}) {
@@ -30,14 +31,19 @@ export class TimeSeries {
     this.drawNowLine = drawNowLine
     this.xTickFormat = xTickFormat
     this.yTickFormat = yTickFormat
+    this.yTooltipFormat = yTooltipFormat
     this.nodes = {}
     this.tValues = state.dataset().distinct(this.tField).map(d => new Date(d))
     this.seriesData = state.dataset().distinct(sField).map(d => state.dataset({[sField]: d}).get())
     this.seriesData.forEach(series => series.forEach(row => row._t = new Date(row[tField])))
 
-    const element = d3.select(`#${id}`)
+
+    this.element = d3.select(`#${id}`)
     const base = this.createBase() 
-    element.append(_ => base.node())
+    this.element.append(_ => base.node())
+
+    this.delaunay = d3.Delaunay.from(state.dataset().get(), 
+      d => this.scaleX(d._t), d => this.scaleY(d[this.yField]))
   }
 
   updateInteraction() {
@@ -148,11 +154,23 @@ export class TimeSeries {
       .style("pointer-events", "none")
     this.nodes.dot.append("circle")
       .attr("r", 2.5)
-    this.nodes.dot.append("text")
-      .attr("font-family", "monospace")
-      .attr("font-size", 10)
-      .attr("text-anchor", "middle")
-      .attr("y", -8)
+    // this.nodes.dot.append("text")
+    //   .attr("font-family", "monospace")
+    //   .attr("font-size", 10)
+    //   .attr("text-anchor", "middle")
+    //   .attr("y", -8)
+
+    this.nodes.tooltip = this.element.append("div")
+      .style("opacity", 0)
+      .attr("class", "tooltip")
+      .style("background-color", "rgba(255, 255, 255, .7)")
+      .style("border", "solid")
+      .style("border-width", "1px")
+      .style("border-radius", "2px")
+      .style("padding", "5px")
+      .style("line-height", "15px")
+      .style("position", "absolute")
+      .style("font-size", ".6em")
 
     this.nodes.nowLine = svg.append("line")
       .attr("stroke", "grey")
@@ -175,21 +193,35 @@ export class TimeSeries {
     const state = this.state
 
     const pointer = d3.pointer(e, this.nodes.svg)
-    const xm = this.scaleX.invert(pointer[0])
-    const ym = this.scaleY.invert(pointer[1])
+    // const xm = this.scaleX.invert(pointer[0])
+    // const ym = this.scaleY.invert(pointer[1])
 
-    const i = d3.bisectCenter(this.tValues, xm)
-    const s = d3.least(this.seriesData, series => Math.abs(series[i][this.yField] - ym)) 
-    const p = [this.scaleX(this.tValues[i]), this.scaleY(s[i][this.yField])]
+    const row =  state.dataset().get()[this.delaunay.find(...pointer)]
+    const p = [this.scaleX(row._t), this.scaleY(row[this.yField])]
+    //const d = Math.hypot(p[0] - pointer[0], p[1] - pointer[1])
+    const d = (p[0] - pointer[0])**2 + (p[1] - pointer[1])**2
 
-    if (Math.abs(p[1] - pointer[1]) < this.hoverProximity) {
-      state.focus = s[i][this.sField]
+    // const i = d3.bisectCenter(this.tValues, xm)
+    // const s = d3.least(this.seriesData, series => Math.abs(series[i][this.yField] - ym)) 
+    // const p = [this.scaleX(this.tValues[i]), this.scaleY(s[i][this.yField])]
+
+    if (d < this.hoverProximity ** 2) {
+      //state.focus = s[i][this.sField]
+      state.focus = row[this.sField]
       this.nodes.dot.attr("transform", `translate(${p[0]},${p[1]})`);
-      this.nodes.dot.select("text").text(s[i][this.sField]);
+      this.nodes.dot.select("text").text(row[this.sField]);
       this.nodes.dot.attr("visibility", "visible")
+
+      this.nodes.tooltip.style("opacity", 1)
+      this.nodes.tooltip.html(row[this.sField] + ": " + this.yTooltipFormat(row[this.yField]))
+      this.nodes.tooltip.style("left", `${p[0] + 5}px`)
+      this.nodes.tooltip.style("top", `${p[1] + 2}px`)
+      //this.nodes.tooltip.style("border-color", this.coloring.f(s[i]))
+      this.nodes.tooltip.style("border-color", "grey") 
     } else {
       state.focus = null
       this.nodes.dot.attr("visibility", "hidden")
+      this.nodes.tooltip.style("opacity", 0)
     }
   }
 
@@ -197,6 +229,7 @@ export class TimeSeries {
     const state  = this.state
     state.focus = null
     this.nodes.dot.attr("visibility", "hidden")
+    this.nodes.tooltip.style("opacity", 0)
     this.updateInteraction()
   }
 

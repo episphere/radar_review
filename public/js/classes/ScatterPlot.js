@@ -12,6 +12,8 @@ export class ScatterPlot {
       interactiveColor,
       trimStd = -1,
       proportionalResize = false,
+      xTooltipFormat = v => v,
+      yTooltipFormat = v => v,
       size = [480, 480],
       margin = {top: 20, right: 20, bottom: 20, left: 30}
     } = {}) {
@@ -28,6 +30,8 @@ export class ScatterPlot {
     this.bubbleField = bubbleField
     this.viewTraces = viewTraces
     this.size = size
+    this.xTooltipFormat = xTooltipFormat
+    this.yTooltipFormat = yTooltipFormat
     this.targetSize = size.map(d => d)
     this.margin = margin
     this.interactiveColor = interactiveColor
@@ -36,21 +40,37 @@ export class ScatterPlot {
     this.nodes = {}
     this.tValues = state.dataset().distinct(this.tField)
 
-    const element = d3.select(`#${id}`)
+    this.element = d3.select(`#${id}`)
+    const div = document.createElement("div")
+    div.style = "position: relative"
+    this.plotElement = this.element.append(_ => div)
     
     const base = this.createBase() 
 
     this.updateAll()
     
-    element.append(_ => base.node())
+    this.plotElement.append(_ => base.node())
   }
 
-  pointMouseOver(_, d) {
+  pointMouseOver(e, d) {
     this.state.focus = d[this.sField]
+
+    const p = [this.scaleX(d[this.xField]), this.scaleY(d[this.yField])]
+
+    const x = this.position(d, this.xField, this.scaleX, 3, [0, 0])
+    const y = this.position(d, this.yField, this.scaleY, 3, [0, 0])
+
+    this.nodes.tooltip.style("opacity", 1)
+    //this.nodes.tooltip.html(d[this.sField] + ": " + this.yTooltipFormat(d[this.yField]))
+    this.nodes.tooltip.html(`${d[this.sField]}: ${this.xTooltipFormat(d[this.xField])}, ${this.yTooltipFormat(d[this.yField])}`)
+    this.nodes.tooltip.style("left", `${x}px`)
+    this.nodes.tooltip.style("top", `${y}px`)
+    this.nodes.tooltip.style("border-color", "grey") 
   }
 
   pointMouseLeave(_, d) {
     this.state.focus = null
+    this.nodes.tooltip.style("opacity", 0)
   }
 
   pointMouseClick(e, d) {
@@ -75,7 +95,7 @@ export class ScatterPlot {
     const state = this.state
 
     const selectedRows = state.dataset({[this.tField]: state.tValue}).get()
-      .filter(d => state.selected.has(d[this.sField]) || state.focus == d[this.sField])
+      .filter(d => state.selected.has(d[this.sField]))// || state.focus == d[this.sField])
 
     this.updateLabels(selectedRows)
 
@@ -148,9 +168,25 @@ export class ScatterPlot {
     this.nodes.labels.selectAll("text")
       .data(selectedRows)
       .join("text")
-        .attr("x", d => positionText(d, this.xField, this.scaleX, 3, [-17, 5]))
-        .attr("y", d => positionText(d, this.yField, this.scaleY, 3, [-20, 5]))
+        .attr("x", d => this.position(d, this.xField, this.scaleX, 3, [-17, 5]))
+        .attr("y", d => this.position(d, this.yField, this.scaleY, 3, [-20, 5]))
         .text(d => d[this.sField])
+  }
+
+  position(d, field, scale, dOffset = 0, cOffset = [0, 0]) {
+    const value = scale(d[field])
+    const cValue = clamp(value, scale.range())
+
+    var offset = 0 
+    if (cValue < value) {
+      offset = cOffset[0]
+    } else if (cValue > value) {
+      offset = cOffset[1]
+    } else {
+      offset = (this.bubbleField ? this.bubbleScale(d[this.bubbleField])*0.75 : 4) + dOffset
+    }
+
+    return cValue + offset
   }
 
   /**
@@ -248,7 +284,6 @@ export class ScatterPlot {
       const xLength = xRange[1] - xRange[0]
       const yLength = yRange[1] - yRange[0]
       const proportion = yLength / xLength
-      console.log(proportion, this.targetSize)
       if (proportion <= 1) {
         this.size[1] = this.targetSize[0] * proportion
         this.nodes.svg.attr("height", this.size[1])
@@ -320,6 +355,18 @@ export class ScatterPlot {
       .attr("text-anchor", "left")
       .attr("fill", "black")
       .style("pointer-events", "none")
+
+    this.nodes.tooltip = this.plotElement.append("div")
+      .style("opacity", 0)
+      .attr("class", "tooltip")
+      .style("background-color", "rgba(255, 255, 255, .7)")
+      .style("border", "solid")
+      .style("border-width", "1px")
+      .style("border-radius", "2px")
+      .style("padding", "5px")
+      .style("line-height", "15px")
+      .style("position", "absolute")
+      .style("font-size", ".6em")
 
     return svg
   }

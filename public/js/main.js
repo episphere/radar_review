@@ -6,6 +6,14 @@ import { ScatterPlot } from "./classes/ScatterPlot.js";
 // TODO: Update data
 // TODO: Rename political fields
 d3.json("data/data_v2.json").then(data => {
+  for (const row of data) {
+    for (const field of Object.keys(row)) {
+      if (field.endsWith("_p")) {
+        row[field] = row[field] * 100000
+      }
+    }
+  }
+
   const dataset = TAFFY(data)
   setUp(dataset)
 
@@ -50,7 +58,8 @@ d3.json("data/data_v2.json").then(data => {
       coloringMap: defaults.COLORING_MAP, 
       interactiveColor: defaults.INTERACTIVE_LINE_COLOR, 
       xTickFormat: v => new Date(v).toISOString().slice(0, 10),
-      yTickFormat: v => d3.format(".3f")(v * 100),
+      yTickFormat: v => d3.format(".0f")(v ),
+      yTooltipFormat: v => d3.format(".2f")(v),
       size: [704,360],
       margin: {left: 40, right: 20, bottom:20, top:5}
     }
@@ -71,8 +80,10 @@ d3.json("data/data_v2.json").then(data => {
     {
       interactiveColor: defaults.INTERACTIVE_COLOR, 
       size: [480, 480],
-      trimStd: 5,
-      margin: {left: 40, right: 20, bottom:20, top:10}
+      trimStd: 2,
+      margin: {left: 40, right: 20, bottom:20, top:10},
+      xTooltipFormat: v => d3.format(".2f")(v),
+      yTooltipFormat: v => d3.format(".2f")(v)
     }
   )
 
@@ -82,12 +93,11 @@ d3.json("data/data_v2.json").then(data => {
   stateFig2.addListener((p, v) => updateBar(barFig2, p, v))
 
   createScatterControls("fig2", scatterFig2,  [...defaults.Y_FIELD_MAP.entries()], 
-    "covid_deaths", "covid_cases")
+    "covid_new_death_mean_p", "covid_cases_p")
 
 
   const stateFig3 = createState()
 
-  // TODO: Make PCP equal axes
   const scatterFig3 = new ScatterPlot(
     "fig3-scatter", "pc1", "pc2", defaults.S_FIELD, defaults.T_FIELD, stateFig3,
     {
@@ -95,7 +105,9 @@ d3.json("data/data_v2.json").then(data => {
       size: [350, 350],
       margin: {left: 40, right: 20, bottom:20, top:20},
       trimStd: 2,
-      proportionalResize: true
+      proportionalResize: true,
+      xTooltipFormat: v => d3.format(".2f")(v),
+      yTooltipFormat: v => d3.format(".2f")(v)
     }
   )
   const parallel = new ParallelPlot(
@@ -110,6 +122,5 @@ d3.json("data/data_v2.json").then(data => {
 
   createScatterControls("fig3", scatterFig3)
 
-  //createControls("fig2-control", scatter, parallel, state)
 })
 
